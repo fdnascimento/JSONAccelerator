@@ -266,6 +266,7 @@
         } else {
             // Show 
             [self toggleCanGenerateFilesTo:YES];
+            [self verifyJSONString];
         }
     }
 }
