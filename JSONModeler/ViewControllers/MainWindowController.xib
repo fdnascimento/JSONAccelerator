@@ -9,6 +9,7 @@
         <customObject id="-2" userLabel="File's Owner" customClass="MainWindowController">
             <connections>
                 <outlet property="JSONTextView" destination="440" id="940"/>
+                <outlet property="checkAuto" destination="9fz-nL-HcQ" id="dVx-bz-UfE"/>
                 <outlet property="errorCloseButton" destination="4006" id="4181"/>
                 <outlet property="errorMessageDescription" destination="3981" id="3990"/>
                 <outlet property="errorMessageTitle" destination="3969" id="3989"/>
@@ -46,7 +47,7 @@
                                     <rect key="frame" x="0.0" y="0.0" width="769" height="481"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <color key="backgroundColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
-                                    <size key="minSize" width="776" height="481"/>
+                                    <size key="minSize" width="769" height="481"/>
                                     <size key="maxSize" width="894" height="10000000"/>
                                     <color key="insertionPointColor" red="0.80784313730000001" green="0.80784313730000001" blue="0.80784313730000001" alpha="1" colorSpace="calibratedRGB"/>
                                     <connections>
@@ -149,6 +150,20 @@
                             <constraint firstAttribute="width" constant="176" id="4184"/>
                         </constraints>
                     </customView>
+                    <button translatesAutoresizingMaskIntoConstraints="NO" id="9fz-nL-HcQ">
+                        <rect key="frame" x="692" y="11" width="66" height="18"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="62" id="X0u-Eq-0E4"/>
+                            <constraint firstAttribute="height" constant="14" id="tzu-3U-Eba"/>
+                        </constraints>
+                        <buttonCell key="cell" type="check" title="auto" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="f3M-6z-EKA">
+                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="goToAuto:" target="-2" id="7i3-jM-mnH"/>
+                        </connections>
+                    </button>
                 </subviews>
                 <constraints>
                     <constraint firstItem="876" firstAttribute="top" secondItem="2" secondAttribute="top" priority="160" constant="1" id="1190"/>
@@ -187,6 +202,8 @@
                     <constraint firstAttribute="bottom" secondItem="3903" secondAttribute="bottom" constant="4" id="4412"/>
                     <constraint firstItem="3903" firstAttribute="top" secondItem="3653" secondAttribute="top" id="4413"/>
                     <constraint firstItem="2514" firstAttribute="centerY" secondItem="3653" secondAttribute="centerY" id="4414"/>
+                    <constraint firstAttribute="bottom" secondItem="9fz-nL-HcQ" secondAttribute="bottom" constant="13" id="1Gd-kV-oY6"/>
+                    <constraint firstAttribute="trailing" secondItem="9fz-nL-HcQ" secondAttribute="trailing" constant="20" id="D4x-Yi-gPn"/>
                 </constraints>
             </view>
             <connections>

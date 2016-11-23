@@ -37,6 +37,7 @@
 @property (weak) IBOutlet NSButton *errorCloseButton;
 @property (weak) IBOutlet NSTextFieldCell *instuctionsTextField;
 @property (weak) IBOutlet NSTextFieldCell *validDataStructureField;
+@property (weak) IBOutlet NSButton *checkAuto;
 
 
 @property (NS_NONATOMIC_IOSONLY, readonly) BOOL verifyJSONString;
@@ -45,6 +46,7 @@
 - (IBAction)switchToDataLoadView:(id)sender;
 - (IBAction)cancelDataLoad:(id)sender;
 - (IBAction)closeAlertPressed:(id)sender;
+- (IBAction)goToAuto:(id)sender;
 
 
 

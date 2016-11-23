@@ -46,6 +46,8 @@
 @property (nonatomic, strong) SavePanelLanguageChooserViewController *languageChooserViewController;
 @property (strong, nonatomic) MarkerLineNumberView *lineNumberView;
 
+@property (assign, nonatomic, getter=isAutoOn) BOOL autoOn;
+
 - (void)generateFiles;
 - (void)getDataButtonPressed;
 - (void)closeAlertBox;
@@ -100,6 +102,8 @@
 
 - (void)windowDidLoad {
     [super windowDidLoad];
+    
+    self.autoOn = YES;
         
     (self.JSONTextView).textColor = [NSColor whiteColor];
     (self.JSONTextView).textContainerInset = NSMakeSize(2, 4);
@@ -155,6 +159,10 @@
 
 - (IBAction)closeAlertPressed:(id)sender {
     [self closeAlertBox];
+}
+
+- (IBAction)goToAuto:(id)sender {
+    self.autoOn = !self.autoOn;
 }
 
 - (void)getDataButtonPressed {
@@ -253,7 +261,10 @@
 }
 
 - (void)textDidChange:(NSNotification *)notification {
-    if (notification.object== self.JSONTextView) {
+    
+    self.JSONTextView.string = [self cleanString:(self.JSONTextView).string];
+    
+    if (notification.object == self.JSONTextView) {
         NSError *error = nil;    
         NSData *data = [(self.JSONTextView).string dataUsingEncoding:NSUTF8StringEncoding];
         // Just for testing
@@ -264,9 +275,13 @@
         if (error) {
             [self toggleCanGenerateFilesTo:NO];
         } else {
-            // Show 
+            // Show
             [self toggleCanGenerateFilesTo:YES];
-            [self verifyJSONString];
+            if (self.isAutoOn) {
+                NSLog(@"self.isAutoOn: %d",self.isAutoOn);
+                [self verifyJSONString];
+            }
+            
         }
     }
 }
@@ -293,8 +308,23 @@
     }
 }
 
+-(NSString*)cleanString:(NSString*)text{
+    
+    NSString *tempStr = text;
+    tempStr = [tempStr stringByReplacingOccurrencesOfString:@"\\" withString:@""];
+    tempStr = [tempStr stringByReplacingOccurrencesOfString:@"=>" withString:@""];
+    tempStr = [tempStr stringByReplacingOccurrencesOfString:@"]\"" withString:@"]"];
+    tempStr = [tempStr stringByReplacingOccurrencesOfString:@"\"[" withString:@"["];
+    
+    return tempStr;
+    
+}
+
 - (BOOL)verifyJSONString {
-    NSError *error = nil;    
+    NSError *error = nil;
+   
+
+    
     NSData *data = [(self.JSONTextView).string dataUsingEncoding:NSUTF8StringEncoding];
     // Just for testing
     id object = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
@@ -320,6 +350,11 @@
         
         return NO;
     } else {
+        
+        if ( self.modeler.JSONString) {
+            self.modeler.JSONString = nil;
+        }
+        
         id output = [NSJSONSerialization dataWithJSONObject:object options:NSJSONWritingPrettyPrinted error:&error];
         NSString *outputString = [[NSString alloc] initWithData:output encoding:NSUTF8StringEncoding];
         self.modeler.JSONString = outputString;

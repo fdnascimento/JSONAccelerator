@@ -69,5 +69,10 @@
 	<string>NSApplication</string>
 	<key>SUFeedURL</key>
 	<string>https://yankee.sierrabravo.net/~jrexeise/JSONAccelerator/updates.xml</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
 </dict>
 </plist>
