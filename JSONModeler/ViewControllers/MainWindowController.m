@@ -69,7 +69,7 @@
     self.wc = [[HTTPOptionsWindowController alloc] initWithNibName:@"HTTPOptionsWindowController" bundle:nil document:self.document];
     self.wc.popoverOwnerDelegate = self;
     
-    [self.instuctionsTextField setStringValue:NSLocalizedString(@"Drag a file, paste your clipboard or load remote data into the pane below.", @"Instructions on how to use the application")]; 
+    [self.instuctionsTextField setStringValue:NSLocalizedString(@"Drag a file, paste your clipboard or load remote data into the pane below.", @"Instructions on how to use the application")];
     [self.validDataStructureField setStringValue:NSLocalizedString(@"Valid data structure", @"Message to state the the JSON is valid")];
     
     NSString *genFiles = NSLocalizedString(@"Generate Files", @"In the main screen, this is the button that writes out files");
@@ -80,7 +80,7 @@
     
     NSFont *fixedFont = [NSFont userFixedPitchFontOfSize:[NSFont smallSystemFontSize]];
     (self.JSONTextView).font = fixedFont;
-
+    
     [self.JSONTextView setNeedsDisplay:YES];
     
     _lineNumberView = [[MarkerLineNumberView alloc] initWithScrollView:self.scrollView];
@@ -104,12 +104,12 @@
     [super windowDidLoad];
     
     self.autoOn = YES;
-        
+    
     (self.JSONTextView).textColor = [NSColor whiteColor];
     (self.JSONTextView).textContainerInset = NSMakeSize(2, 4);
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidChange:)  name:NSControlTextDidChangeNotification object:nil];
-
-    NSError *error = nil;    
+    
+    NSError *error = nil;
     NSData *data = [(self.JSONTextView).string dataUsingEncoding:NSUTF8StringEncoding];
     // Just for testing
     [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
@@ -145,7 +145,7 @@
     [self.getDataView setHidden:YES];
     
     
-    NSError *error = nil;    
+    NSError *error = nil;
     NSData *data = [(self.JSONTextView).string dataUsingEncoding:NSUTF8StringEncoding];
     // Just for testing
     [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
@@ -162,7 +162,7 @@
 }
 
 - (IBAction)goToAuto:(id)sender {
-    self.autoOn = !self.autoOn;
+    self.autoOn = !self.autoOn;    
 }
 
 - (void)getDataButtonPressed {
@@ -182,14 +182,14 @@
     
     // ******************************************
     // SUCCESS BLOCK
-    // ******************************************    
+    // ******************************************
     void (^successBlock)(id object) = ^(id object) {
         [self.wc.popover close];
         [self.getDataButton setHidden:NO];
         [self.progressView stopAnimation:nil];
         NSString *parsedString  = [[NSString alloc] initWithData:object encoding:NSUTF8StringEncoding];
         
-        NSError *error = nil;    
+        NSError *error = nil;
         parsedString = [parsedString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
         
         NSData *data = [parsedString dataUsingEncoding:NSUTF8StringEncoding];
@@ -211,16 +211,16 @@
             id output = [NSJSONSerialization dataWithJSONObject:jsonObject options:NSJSONWritingPrettyPrinted error:&error];
             NSString *outputString = [[NSString alloc] initWithData:output encoding:NSUTF8StringEncoding];
             self.modeler.JSONString = outputString;
-            [self toggleCanGenerateFilesTo:YES]; 
+            [self toggleCanGenerateFilesTo:YES];
         } else {
             self.modeler.JSONString = parsedString;
             [self toggleCanGenerateFilesTo:NO];
         }
     };
-
+    
     // ******************************************
     // ERROR BLOCK
-    // ******************************************    
+    // ******************************************
     void (^errorBlock)(NSHTTPURLResponse *response, NSError *error) = ^(NSHTTPURLResponse *response, NSError *error){
         [self.getDataButton setHidden:NO];
         [self.progressView stopAnimation:nil];
@@ -262,28 +262,33 @@
 
 - (void)textDidChange:(NSNotification *)notification {
     
-    self.JSONTextView.string = [self cleanString:(self.JSONTextView).string];
-    
-    if (notification.object == self.JSONTextView) {
-        NSError *error = nil;    
-        NSData *data = [(self.JSONTextView).string dataUsingEncoding:NSUTF8StringEncoding];
-        // Just for testing
-        [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
+    if (self.isAutoOn) {
+        NSLog(@"self.isAutoOn: %d",self.isAutoOn);
+        self.JSONTextView.string = [self cleanString:(self.JSONTextView).string];
         
-        
-        
-        if (error) {
-            [self toggleCanGenerateFilesTo:NO];
-        } else {
-            // Show
-            [self toggleCanGenerateFilesTo:YES];
-            if (self.isAutoOn) {
-                NSLog(@"self.isAutoOn: %d",self.isAutoOn);
-                [self verifyJSONString];
-            }
+        if (notification.object == self.JSONTextView) {
             
+            
+            NSError *error = nil;
+            NSData *data = [(self.JSONTextView).string dataUsingEncoding:NSUTF8StringEncoding];
+            // Just for testing
+            [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
+            
+            
+            
+            if (error) {
+                [self toggleCanGenerateFilesTo:NO];
+            } else {
+                // Show
+                [self toggleCanGenerateFilesTo:YES];
+                
+                [self verifyJSONString];
+                
+            }
         }
     }
+    
+    
 }
 
 - (void)toggleCanGenerateFilesTo:(BOOL)canGenerateFiles {
@@ -296,7 +301,7 @@
     }
     (self.genFilesView).enabled = canGenerateFiles;
     (self.invalidDataView).hidden = canGenerateFiles;
-    (self.validDataStructureView).hidden = !canGenerateFiles;    
+    (self.validDataStructureView).hidden = !canGenerateFiles;
 }
 
 - (void)closeAlertBox  {
@@ -315,6 +320,9 @@
     tempStr = [tempStr stringByReplacingOccurrencesOfString:@"=>" withString:@""];
     tempStr = [tempStr stringByReplacingOccurrencesOfString:@"]\"" withString:@"]"];
     tempStr = [tempStr stringByReplacingOccurrencesOfString:@"\"[" withString:@"["];
+    tempStr = [tempStr stringByReplacingOccurrencesOfString:@"}\"" withString:@"}"];
+    tempStr = [tempStr stringByReplacingOccurrencesOfString:@"\"{" withString:@"{"];
+    
     
     return tempStr;
     
@@ -322,8 +330,8 @@
 
 - (BOOL)verifyJSONString {
     NSError *error = nil;
-   
-
+    
+    
     
     NSData *data = [(self.JSONTextView).string dataUsingEncoding:NSUTF8StringEncoding];
     // Just for testing
@@ -402,7 +410,7 @@
     self.languageChooserViewController = [[SavePanelLanguageChooserViewController alloc] initWithNibName:@"SavePanelLanguageChooserViewController" bundle:nil];
     (self.panel).accessoryView = self.languageChooserViewController.view;
     
-    [self.panel beginSheetModalForWindow:self.mainWindow completionHandler:^(NSInteger result) {        
+    [self.panel beginSheetModalForWindow:self.mainWindow completionHandler:^(NSInteger result) {
         if (result == NSModalResponseOK) {
             OutputLanguage language = [self.languageChooserViewController chosenLanguage];
             
@@ -426,7 +434,7 @@
                     if (!classPrefix) {
                         classPrefix = @"";
                     }
-                        
+                    
                     writer = [[OutputLanguageWriterObjectiveC alloc] init];
                     
                     if (baseClassName != nil) {
@@ -441,14 +449,14 @@
                     writer = [[OutputLanguageWriterJava alloc] init];
                     optionsDict = baseClassName != nil ? @{kJvmWritingOptionBaseClassName: baseClassName,
                                                            kJvmWritingOptionPackageName: self.languageChooserViewController.packageName} :
-                                                         @{kJvmWritingOptionPackageName: self.languageChooserViewController.packageName};
+                    @{kJvmWritingOptionPackageName: self.languageChooserViewController.packageName};
                 } else if (language == OutputLanguageScala) {
                     writer = [[OutputLanguageWriterScalaCaseClass alloc] init];
                     optionsDict = baseClassName != nil ? @{kJvmWritingOptionBaseClassName: baseClassName,
                                                            kJvmWritingOptionPackageName: self.languageChooserViewController.packageName,
                                                            kWritingOptionJsonLibrary: [NSNumber numberWithUnsignedInteger:jsonLibrary]} :
-                                                         @{kJvmWritingOptionPackageName: self.languageChooserViewController.packageName,
-                                                           kWritingOptionJsonLibrary: [NSNumber numberWithUnsignedInteger:jsonLibrary]};
+                    @{kJvmWritingOptionPackageName: self.languageChooserViewController.packageName,
+                      kWritingOptionJsonLibrary: [NSNumber numberWithUnsignedInteger:jsonLibrary]};
                 } else if (language == OutputLanguageCoreDataObjectiveC) {
                     writer = [[OutputLanguageWriterCoreData alloc] init];
                     
@@ -490,7 +498,7 @@
             }
             
             if (NSClassFromString(@"NSUserNotification")) {
-               // It's 10.8 - Notify
+                // It's 10.8 - Notify
                 NSUserNotification *notification = [[NSUserNotification alloc] init];
                 notification.title = titleMessage;
                 notification.informativeText = statusString;
@@ -500,7 +508,7 @@
                 [[NSUserNotificationCenter defaultUserNotificationCenter] deliverNotification:notification];
                 [NSUserNotificationCenter defaultUserNotificationCenter].delegate = self;
             } else {
-            
+                
                 NSAlert *statusAlert = [NSAlert alertWithMessageText:titleMessage
                                                        defaultButton:NSLocalizedString(@"OK", @"Button to dismiss an action sheet")
                                                      alternateButton:nil
@@ -568,7 +576,7 @@
 #pragma mark - Custom Delegate method
 
 - (void)clickViewPressed:(id)sender {
-
+    
     if (sender == self.genFilesView) {
         [self generateFilesPressed:nil];
     } else if (sender == self.invalidDataView) {
@@ -582,9 +590,9 @@
                                               NSMidY(toggleButton.frame));
             
             self.attachedWindow = [[MAAttachedWindow alloc] initWithView:self.errorMessageView
-                                                         attachedToPoint:buttonPoint 
-                                                                inWindow:toggleButton.window 
-                                                                  onSide:side 
+                                                         attachedToPoint:buttonPoint
+                                                                inWindow:toggleButton.window
+                                                                  onSide:side
                                                               atDistance:24.0f];
             
             [self.attachedWindow setBorderColor:[NSColor darkGrayColor]];
@@ -600,7 +608,7 @@
             
             [toggleButton.window addChildWindow:self.attachedWindow ordered:NSWindowAbove];
             
-            NSError *error = nil;    
+            NSError *error = nil;
             NSData *data = [(self.JSONTextView).string dataUsingEncoding:NSUTF8StringEncoding];
             [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
             
@@ -625,7 +633,7 @@
                 parsedString = [parsedString stringByReplacingOccurrencesOfString:@"Badly formed object" withString:@""];
                 parsedString = [parsedString stringByReplacingOccurrencesOfString:@"Badly formed array" withString:@""];
                 parsedString = [parsedString stringByReplacingOccurrencesOfString:@"No string key for value in object" withString:@""];
-
+                
                 parsedString = [parsedString stringByReplacingOccurrencesOfString:@"." withString:@""];
                 _lineNumberForMarker = [self findLineForCharacter:parsedString.intValue];
                 [_lineNumberView placeMarkerAtLine:_lineNumberForMarker];
